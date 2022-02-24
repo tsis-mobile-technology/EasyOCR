@@ -23,7 +23,9 @@ train_img_ids = {}
 validation_img_ids = {}
 test_img_ids = {}
 
-for image in ocr_good_files['images']: #file['images']:
+file = json.load(open("/Users/gotaejong/ExternHard/97_Workspace/jupyter/Text_in_the_wild/textinthewild_data_info.json"))
+
+for image in file['images']:
     if image['file_name'] in train_files:
         train_img_ids[image['file_name']] = image['id']
     elif image['file_name'] in validation_files:
@@ -41,9 +43,9 @@ train_ids_img = {train_img_ids[id_]:id_ for id_ in train_img_ids}
 validation_ids_img = {validation_img_ids[id_]:id_ for id_ in validation_img_ids}
 test_ids_img = {test_img_ids[id_]:id_ for id_ in test_img_ids}
 
-for idx, annotation in enumerate(ocr_good_files['annotaions']): #file['annotations']):
+for idx, annotation in enumerate(file['annotaions']):
     if idx % 5000 == 0:
-        print(idx,'/',len(ocr_good_files['annotations']),'processed') #file['annotations']
+        print(idx,'/',len(file['annotations']),'processed')
     if annotation['attributes']['class'] != 'word':
         continue
     if annotation['image_id'] in train_ids_img:
