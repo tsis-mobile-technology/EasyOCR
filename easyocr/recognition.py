@@ -171,7 +171,12 @@ def get_recognizer(recog_network, network_params, character,\
         for key, value in state_dict.items():
             new_key = key[7:]
             new_state_dict[new_key] = value
-        model.load_state_dict(new_state_dict)
+        # RuntimeError: Error(s) in loading state_dict for Model:
+        # Unexpected key(s) in state_dick: "Trans .......
+        # load_state_dick call function , added "strict=False"
+        # 관련 사이트
+        # https://velog.io/@nawnoes/pytorch-%EB%8B%A4%EB%A5%B8-%EB%AA%A8%EB%8D%B8%EC%9D%84-%EB%82%B4-%EB%AA%A8%EB%8D%B8%EB%A1%9C-%EB%B6%88%EB%9F%AC%EC%98%AC-%EB%95%8C-Unexpected-keys-in-statedic-%EB%AC%B8%EC%A0%9C
+        model.load_state_dict(new_state_dict, strict=False)
         if quantize:
             try:
                 torch.quantization.quantize_dynamic(model, dtype=torch.qint8, inplace=True)
