@@ -77,10 +77,13 @@ if __name__ == '__main__':
                         ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
                         img_color = Image.fromarray(img_color)
                         draw = ImageDraw.Draw(img_color)
+                        w, h = font.getsize(string)
+                        draw.rectangle((int(bbox[0][0]), int(bbox[0][1])-30, int(bbox[0][0]) + w, int(bbox[0][1])-30 + h), fill='gray')
                         draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 255, 255))
                         img_color = np.array(img_color)
-                    cv.imshow("test", img_color)
-            # cv.destroyWindow("test")
+                        cv.imshow("test", img_color)
+                        cv.waitKey(0)
+                        cv.destroyWindow("test")
             # cv.waitKey(0)
             # ESC 키누르면 종료
             elif key == 27:
