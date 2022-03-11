@@ -1,5 +1,5 @@
 # korean (TPS-ResNet-BiLSTM-CTC)
-imgH: 64
+imgH: 32
 lang_list: ['ko','en']
 network_params:
   input_channel: 1

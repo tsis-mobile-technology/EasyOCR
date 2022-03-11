@@ -45,51 +45,95 @@ def put_test(img, str_text, filename):
     img = np.array(img)
     cv.imshow(filename, img)
 
-
-
 if __name__ == '__main__':
+    if True:
 
-    # # Using default model
-    # reader = Reader(['en'], gpu=True)
+        cap = cv.VideoCapture(0)
+        reader = Reader(['ko', 'en'], gpu=False)
+        font = ImageFont.truetype("fonts/gulim.ttc", 30)
+        while(True):
+            ret, img_color = cap.read()
+            height, width = img_color.shape[:2]
+            img_color = cv.resize(img_color, (width, height), interpolation=cv.INTER_AREA)
+            # img_color = cv.flip(img_color, 1)  # 좌우반전
+            cv.imshow("test", img_color)
+            key = cv.waitKey(1)
+            if key == ord('s'):
+                result = reader.readtext(img_color)
+                print("result.__len__():", result.__len__())
+                if result.__len__() > 0:
+                    # ./easyocr/utils.py 733 lines
+                    # result[0]: bbox
+                    # result[1]: string
+                    # result[2]: confidence
+                    for (bbox, string, confidence) in result:
+                        print("confidence: %.4f, string: '%s'" % (confidence, string))
+                        # print('bbox: ', bbox)
+                        cv.rectangle(img_color, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255),3)
+                        # put_test(img, string, filename)
 
-    # Using custom model case english
-    # reader = Reader(['en'], gpu=False,
-    #                 model_storage_directory='model',
-    #                 user_network_directory='user_network',
-    #                 recog_network='custom_en')
+                        bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1])-30)
+                        # font = ImageFont.truetype("fonts/gulim.ttc", 20)
+                        ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
+                        img_color = Image.fromarray(img_color)
+                        draw = ImageDraw.Draw(img_color)
+                        draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 255, 255))
+                        img_color = np.array(img_color)
+                    cv.imshow("test", img_color)
+            # cv.destroyWindow("test")
+            # cv.waitKey(0)
+            # ESC 키누르면 종료
+            elif key == 27:
+                cv.destroyWindow("test")
+                break
+            else:
+                continue
 
-    # Using custom model case english
-    reader = Reader(['ko','en'], gpu=False,
-                    model_storage_directory='model',
-                    user_network_directory='user_network',
-                    recog_network='custom_ko')
 
-    files, count = get_files('demo_image')  #orig 'examples'
+        cv.destroyAllWindows()
+    else :
+        # # Using default model
+        # reader = Reader(['en'], gpu=True)
 
-    for idx, file in enumerate(files):
-        filename = os.path.basename(file)
+        # Using custom model case english
+        # reader = Reader(['en'], gpu=False,
+        #                 model_storage_directory='model',
+        #                 user_network_directory='user_network',
+        #                 recog_network='custom_en')
 
-        result = reader.readtext(file)
+        # Using custom model case english
+        # reader = Reader(['ko','en'], gpu=False,
+        #                 model_storage_directory='model',
+        #                 user_network_directory='user_network',
+        #                 recog_network='custom_ko')
+        reader = Reader(['ko','en'], gpu=False)
 
-        # ./easyocr/utils.py 733 lines
-        # result[0]: bbox
-        # result[1]: string
-        # result[2]: confidence
-        for (bbox, string, confidence) in result:
-            print("filename: '%s', confidence: %.4f, string: '%s'" % (filename, confidence, string))
-            print('bbox: ', bbox)
-            img = cv.imread(file)
-            cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255), 3)
-            # put_test(img, string, filename)
+        files, count = get_files('demo_image')  #orig 'examples'
 
-            bottomLeftCornerOfText = (10, 500)
-            font = ImageFont.truetype("fonts/gulim.ttc", 50)
-            ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
-            img = Image.fromarray(img)
-            draw = ImageDraw.Draw(img)
-            draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
-            img = np.array(img)
+        for idx, file in enumerate(files):
+            filename = os.path.basename(file)
 
-            cv.imshow(filename, img)
-            cv.waitKey(0)
-            cv.destroyWindow(filename)
+            result = reader.readtext(file)
+
+            # ./easyocr/utils.py 733 lines
+            # result[0]: bbox
+            # result[1]: string
+            # result[2]: confidence
+            for (bbox, string, confidence) in result:
+                print("filename: '%s', confidence: %.4f, string: '%s'" % (filename, confidence, string))
+                print('bbox: ', bbox)
+                img = cv.imread(file)
+                cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255), 3)
+                # put_test(img, string, filename)
+
+                bottomLeftCornerOfText = (10, 500)
+                font = ImageFont.truetype("fonts/gulim.ttc", 50)
+                ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
+                img = Image.fromarray(img)
+                draw = ImageDraw.Draw(img)
+                draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
+                img = np.array(img)
+
+                cv.imshow(filename, img)
+                cv.waitKey(0)
+            cv.destroyAllWindows()
