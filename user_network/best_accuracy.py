@@ -2,8 +2,8 @@ import sys
 
 import torch.nn as nn
 import os
-sys.path.append(os.path.abspath("/Users/gotaejong/ExternHard/97_Workspace/jupyter/EasyOCR/model"))
-
+# sys.path.append(os.path.abspath("/Users/gotaejong/ExternHard/97_Workspace/jupyter/EasyOCR/model"))
+sys.path.append(os.path.abspath("/mnt/sdb1/jupyter/EasyOCR/model"))
 from custom_modules import ResNet_FeatureExtractor, BidirectionalLSTM
 # english (None-VGG-BiLSTM-CTC)
 # korean (TPS-ResNet-BiLSTM-CTC)
