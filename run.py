@@ -56,10 +56,10 @@ def get_text(img_color):
         # result[0]: bbox
         # result[1]: string
         # result[2]: confidence
-        for (bbox, string, confidence) in result:
+        for idx, (bbox, string, confidence) in enumerate(result):
             print("confidence: %.4f, string: '%s'" % (confidence, string))
             # print('bbox: ', bbox)
-            if False:
+            if True:
                 cv.rectangle(img_color, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255),
                              3)
                 # put_test(img, string, filename)
@@ -74,9 +74,10 @@ def get_text(img_color):
                                fill='gray')
                 draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 255, 255))
                 img_color = np.array(img_color)
-                cv.imshow("test", img_color)
-                cv.waitKey(0)
-                cv.destroyWindow("test")
+                if idx == 4:
+                    cv.imshow("test", img_color)
+                    cv.waitKey(0)
+                    cv.destroyWindow("test")
 
 if __name__ == '__main__':
     if True:
@@ -84,7 +85,10 @@ if __name__ == '__main__':
         # cap = cv.VideoCapture(0)
         webcam_stream = WebcamStream(stream_id=0)  # stream_id = 0 is for primary camera
         webcam_stream.start()
-        reader = Reader(['ko', 'en'], gpu=False)
+        reader = Reader(['ko', 'en'], gpu=False,
+                        model_storage_directory='model',
+                        user_network_directory='user_network',
+                        recog_network='TPS-ResNet-BiLSTM-CTC-syllable-word-0316')
         font = ImageFont.truetype("fonts/gulim.ttc", 30)
         while(True):
             # ret, img_color = cap.read()
@@ -93,16 +97,17 @@ if __name__ == '__main__':
             img_color = cv.resize(img_color, (width, height), interpolation=cv.INTER_AREA)
             # img_color = cv.flip(img_color, 1)  # 좌우반전
             delay = 0.03  # delay value in seconds. so, delay=1 is equivalent to 1 second
-            # delay = 1
+            # delay = 2
             time.sleep(delay)
-            cv.imshow("test", img_color)
-
+            # cv.imshow("test", img_color)
             # t = Thread(target=get_text, args=(img_color,))
             # t.start()
             key = cv.waitKey(1)
             if key == ord('s'):
-                t = Thread(target=get_text, args=(img_color,))
-                t.start()
+                get_text(img_color)
+                # in thread
+                # t = Thread(target=get_text, args=(img_color,))
+                # t.start()
                 """
                 result = reader.readtext(img_color)
                 print("result.__len__():", result.__len__())
@@ -136,6 +141,7 @@ if __name__ == '__main__':
                 cv.destroyWindow("test")
                 break
             else:
+                cv.imshow("test", img_color)
                 continue
 
         webcam_stream.stop()
