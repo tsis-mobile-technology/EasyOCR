@@ -42,6 +42,7 @@ class WebcamStream:
             if self.stopped is True:
                 break
             self.grabbed, self.frame = self.vcap.read()
+
             if self.grabbed is False:
                 print('[Exiting] No more frames to read')
                 self.stopped = True
@@ -50,12 +51,14 @@ class WebcamStream:
 
     # method for returning latest read frame
     def read(self):
+        # print('read')
         return self.frame
 
     # method called to stop reading frames
     def stop(self):
+        print('stop')
         self.stopped = True
-
+"""
     # initializing and starting multi-threaded webcam capture input stream
 
 
@@ -70,7 +73,7 @@ while True:
         break
     else:
         frame = webcam_stream.read()
-
+        print('main')
         # adding a delay for simulating time taken for processing a frame
     delay = 0.03  # delay value in seconds. so, delay=1 is equivalent to 1 second
     time.sleep(delay)
@@ -90,3 +93,4 @@ print("FPS: {} , Elapsed Time: {} , Frames Processed: {}".format(fps, elapsed, n
 
 # closing all windows
 cv2.destroyAllWindows()
+"""

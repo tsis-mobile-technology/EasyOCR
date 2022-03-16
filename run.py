@@ -2,6 +2,9 @@ import cv2 as cv
 import numpy as np
 from easyocr.easyocr import *
 from PIL import ImageFont, ImageDraw, Image
+from video_processing_parallel import WebcamStream
+import time
+from threading import Thread  # library for implementing multi-threaded processing
 
 # GPU 설정
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
@@ -45,20 +48,62 @@ def put_test(img, str_text, filename):
     img = np.array(img)
     cv.imshow(filename, img)
 
+def get_text(img_color):
+    result = reader.readtext(img_color)
+    print("result.__len__():", result.__len__())
+    if result.__len__() > 0:
+        # ./easyocr/utils.py 733 lines
+        # result[0]: bbox
+        # result[1]: string
+        # result[2]: confidence
+        for (bbox, string, confidence) in result:
+            print("confidence: %.4f, string: '%s'" % (confidence, string))
+            # print('bbox: ', bbox)
+            if False:
+                cv.rectangle(img_color, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255),
+                             3)
+                # put_test(img, string, filename)
+
+                bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1]) - 30)
+                # font = ImageFont.truetype("fonts/gulim.ttc", 20)
+                ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
+                img_color = Image.fromarray(img_color)
+                draw = ImageDraw.Draw(img_color)
+                w, h = font.getsize(string)
+                draw.rectangle((int(bbox[0][0]), int(bbox[0][1]) - 30, int(bbox[0][0]) + w, int(bbox[0][1]) - 30 + h),
+                               fill='gray')
+                draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 255, 255))
+                img_color = np.array(img_color)
+                cv.imshow("test", img_color)
+                cv.waitKey(0)
+                cv.destroyWindow("test")
+
 if __name__ == '__main__':
     if True:
 
-        cap = cv.VideoCapture(0)
+        # cap = cv.VideoCapture(0)
+        webcam_stream = WebcamStream(stream_id=0)  # stream_id = 0 is for primary camera
+        webcam_stream.start()
         reader = Reader(['ko', 'en'], gpu=False)
         font = ImageFont.truetype("fonts/gulim.ttc", 30)
         while(True):
-            ret, img_color = cap.read()
+            # ret, img_color = cap.read()
+            img_color = webcam_stream.read()
             height, width = img_color.shape[:2]
             img_color = cv.resize(img_color, (width, height), interpolation=cv.INTER_AREA)
             # img_color = cv.flip(img_color, 1)  # 좌우반전
+            delay = 0.03  # delay value in seconds. so, delay=1 is equivalent to 1 second
+            # delay = 1
+            time.sleep(delay)
             cv.imshow("test", img_color)
+
+            # t = Thread(target=get_text, args=(img_color,))
+            # t.start()
             key = cv.waitKey(1)
             if key == ord('s'):
+                t = Thread(target=get_text, args=(img_color,))
+                t.start()
+                """
                 result = reader.readtext(img_color)
                 print("result.__len__():", result.__len__())
                 if result.__len__() > 0:
@@ -84,6 +129,7 @@ if __name__ == '__main__':
                         cv.imshow("test", img_color)
                         cv.waitKey(0)
                         cv.destroyWindow("test")
+                """
             # cv.waitKey(0)
             # ESC 키누르면 종료
             elif key == 27:
@@ -92,7 +138,7 @@ if __name__ == '__main__':
             else:
                 continue
 
-
+        webcam_stream.stop()
         cv.destroyAllWindows()
     else :
         # # Using default model
