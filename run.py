@@ -10,11 +10,11 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 def get_files(path):
     file_list = []
 
-    files = [f for f in os.listdir(path) if not f.startswith('.')]  # skip hidden file
-    files.sort()
+    lists = [f for f in os.listdir(path) if not f.startswith('.')]  # skip hidden file
+    lists.sort()
     abspath = os.path.abspath(path)
-    for file in files:
-        file_path = os.path.join(abspath, file)
+    for onelist in lists:
+        file_path = os.path.join(abspath, onelist)
         file_list.append(file_path)
 
     return file_list, len(file_list)
