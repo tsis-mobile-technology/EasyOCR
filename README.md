@@ -138,7 +138,7 @@ reader = easyocr.Reader(['en'], detection='DB', recognition = 'Transformer')
 ```
 The idea is to be able to plug-in any state-of-the-art model into EasyOCR. There are a lot of geniuses trying to make better detection/recognition models, but we are not trying to be geniuses here. We just want to make their works quickly accessible to the public ... for free. (well, we believe most geniuses want their work to create a positive impact as fast/big as possible) The pipeline should be something like the below diagram. Grey slots are placeholders for changeable light blue modules.
 
-![plan](examples/easyocr_framework.jpeg)
+![plan](demo_image/easyocr_framework.jpeg)
 
 ## Acknowledgement and References
 

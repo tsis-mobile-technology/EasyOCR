@@ -80,15 +80,18 @@ def get_text(img_color):
                     cv.destroyWindow("test")
 
 if __name__ == '__main__':
-    if True:
+    if False:
 
         # cap = cv.VideoCapture(0)
         webcam_stream = WebcamStream(stream_id=0)  # stream_id = 0 is for primary camera
         webcam_stream.start()
         reader = Reader(['ko', 'en'], gpu=False,
-                        model_storage_directory='model',
-                        user_network_directory='user_network',
-                        recog_network='TPS-ResNet-BiLSTM-CTC-syllable-word-0316')
+                        model_storage_directory='./model',
+                        user_network_directory='./user_network',
+                        # recog_network='TPS-ResNet-BiLSTM-CTC-0311-wild')
+                        # # recog_network='TPS-ResNet-BiLSTM-Attn-0316-wild')
+                        recog_network='TPS-ResNet-BiLSTM-Attn-wild-syllable-0317')
+                        # recog_network='TPS-ResNet-BiLSTM-CTC-syllable-word-0316')
         font = ImageFont.truetype("fonts/gulim.ttc", 30)
         while(True):
             # ret, img_color = cap.read()
@@ -161,13 +164,23 @@ if __name__ == '__main__':
         #                 model_storage_directory='model',
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
-        reader = Reader(['ko','en'], gpu=False)
+        reader = Reader(['ko', 'en'], gpu=False,
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1111',
+                        # model_storage_directory='./model',
+                        user_network_directory='./user_network',
+                        # recog_network='craft_mlt_25k')
+                        # # recog_network='TPS-ResNet-BiLSTM-CTC-0311-wild')
+                        # recog_network='TPS-ResNet-BiLSTM-Attn-0316-wild')
+                        # # recog_network='TPS-ResNet-BiLSTM-Attn-wild-syllable-0317')
+                        # recog_network='TPS-ResNet-BiLSTM-CTC-syllable-word-wild-0316')
+                        recog_network='best_accuracy')
 
-        files, count = get_files('demo_image')  #orig 'examples'
+        # files, count = get_files('../aihub_data/Text_in_the_wild/data/Goods/test')  #orig 'examples'
+        files, count = get_files('examples')  # orig
 
         for idx, file in enumerate(files):
             filename = os.path.basename(file)
-
+            print("file:", file )
             result = reader.readtext(file)
 
             # ./easyocr/utils.py 733 lines

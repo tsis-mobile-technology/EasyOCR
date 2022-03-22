@@ -16,6 +16,7 @@ import sys
 from PIL import Image
 from logging import getLogger
 import yaml
+from datetime import datetime
 
 if sys.version_info[0] == 2:
     from io import open
@@ -52,10 +53,13 @@ class Reader(object):
         """
         self.download_enabled = download_enabled
 
-        self.model_storage_directory = MODULE_PATH + '/model'
+        self.model_storage_directory = MODULE_PATH + 'model'
+
         if model_storage_directory:
+            # print("model_storage_directory:", model_storage_directory)
             self.model_storage_directory = model_storage_directory
         Path(self.model_storage_directory).mkdir(parents=True, exist_ok=True)
+        # print("self.model_storage_directory:", self.model_storage_directory)
 
         self.user_network_directory = MODULE_PATH + '/user_network'
         if user_network_directory:
@@ -81,6 +85,8 @@ class Reader(object):
         detector_model = 'craft'
         corrupt_msg = 'MD5 hash mismatch, possible file corruption'
         detector_path = os.path.join(self.model_storage_directory, detection_models[detector_model]['filename'])
+        print("detector_path:", detector_path)
+
         if detector:
             if os.path.isfile(detector_path) == False:
                 if not self.download_enabled:
@@ -91,6 +97,7 @@ class Reader(object):
                 assert calculate_md5(detector_path) == detection_models[detector_model]['filesize'], corrupt_msg
                 LOGGER.info('Download complete')
             elif calculate_md5(detector_path) != detection_models[detector_model]['filesize']:
+                print(calculate_md5(detector_path))
                 if not self.download_enabled:
                     raise FileNotFoundError("MD5 mismatch for %s and downloads disabled" % detector_path)
                 LOGGER.warning(corrupt_msg)
@@ -102,7 +109,7 @@ class Reader(object):
 
         # recognition model
         separator_list = {}
-
+        print("recog_network:", recog_network)
         if recog_network in ['standard'] + [model for model in recognition_models['gen1']] + [model for model in recognition_models['gen2']]:
             if recog_network in [model for model in recognition_models['gen1']]:
                 model = recognition_models['gen1'][recog_network]
@@ -210,7 +217,7 @@ class Reader(object):
             model_file = recog_network+ '.pth'
             model_path = os.path.join(self.model_storage_directory, model_file)
             self.setLanguageList(lang_list, None)
-
+        print("model_path:", model_path)
         dict_list = {}
         for lang in lang_list:
             dict_list[lang] = os.path.join(BASE_PATH, 'dict', lang + ".txt")
@@ -232,6 +239,7 @@ class Reader(object):
                     }
             else:
                 network_params = recog_config['network_params']
+            print("network_params:", network_params)
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
                                                          dict_list, model_path, device = self.device, quantize=quantize)
@@ -263,6 +271,7 @@ class Reader(object):
             symbol = '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ '
         self.lang_char = set(self.lang_char).union(set(symbol))
         self.lang_char = ''.join(self.lang_char)
+
 
     def detect(self, img, min_size = 20, text_threshold = 0.7, low_text = 0.4,\
                link_threshold = 0.4,canvas_size = 2560, mag_ratio = 1.,\
@@ -315,10 +324,11 @@ class Reader(object):
             y_max, x_max = img_cv_grey.shape
             horizontal_list = [[0, x_max, 0, y_max]]
             free_list = []
-
+        print("recognize:", 324, ",", datetime.now())
         # without gpu/parallelization, it is faster to process image one by one
         if ((batch_size == 1) or (self.device == 'cpu')) and not rotation_info:
             result = []
+            print("recognize:", 328, ",", datetime.now())
             for bbox in horizontal_list:
                 h_list = [bbox]
                 f_list = []
@@ -327,6 +337,7 @@ class Reader(object):
                               ignore_char, decoder, beamWidth, batch_size, contrast_ths, adjust_contrast, filter_ths,\
                               workers, self.device)
                 result += result0
+            print("recognize:", 337, ",", datetime.now())
             for bbox in free_list:
                 h_list = []
                 f_list = [bbox]
@@ -342,7 +353,7 @@ class Reader(object):
             if rotation_info and image_list:
                 image_list = make_rotated_img_list(rotation_info, image_list)
                 max_width = max(max_width, imgH)
-
+            print("recognize:", 353, ",", datetime.now())
             result = get_text(self.character, imgH, int(max_width), self.recognizer, self.converter, image_list,\
                           ignore_char, decoder, beamWidth, batch_size, contrast_ths, adjust_contrast, filter_ths,\
                           workers, self.device)
@@ -384,6 +395,7 @@ class Reader(object):
         image: file path or numpy-array or a byte stream object
         '''
         img, img_cv_grey = reformat_input(image)
+        print("easyocr:", 392, ",", datetime.now())
 
         horizontal_list, free_list = self.detect(img, min_size, text_threshold,\
                                                  low_text, link_threshold,\
@@ -391,6 +403,7 @@ class Reader(object):
                                                  slope_ths, ycenter_ths,\
                                                  height_ths,width_ths,\
                                                  add_margin, False)
+        print("easyocr:", 400, ",", datetime.now())
         # get the 1st result from hor & free list as self.detect returns a list of depth 3
         horizontal_list, free_list = horizontal_list[0], free_list[0]
         result = self.recognize(img_cv_grey, horizontal_list, free_list,\
@@ -398,7 +411,7 @@ class Reader(object):
                                 workers, allowlist, blocklist, detail, rotation_info,\
                                 paragraph, contrast_ths, adjust_contrast,\
                                 filter_ths, y_ths, x_ths, False, output_format)
-
+        print("easyocr:", 408, ",", datetime.now())
         return result
     
     def readtextlang(self, image, decoder = 'greedy', beamWidth= 5, batch_size = 1,\
