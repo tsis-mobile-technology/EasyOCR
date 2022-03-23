@@ -209,6 +209,8 @@ class Reader(object):
         else: # user-defined model
             with open(os.path.join(self.user_network_directory, recog_network+ '.yaml'), encoding='utf8') as file:
                 recog_config = yaml.load(file, Loader=yaml.FullLoader)
+            self.recog_network = recog_network
+            print("recog_config:", recog_config)
             imgH = recog_config['imgH']
             available_lang = recog_config['lang_list']
             self.setModelLanguage(recog_network, lang_list, available_lang, available_lang)
@@ -239,10 +241,31 @@ class Reader(object):
                     }
             else:
                 network_params = recog_config['network_params']
+
+                # user modify code
+                # featureExtraction = recog_config['FeatureExtraction']  # 'ResNet'
+                # prediction = recog_config['Prediction']  # 'CTC',
+                # sequenceModeling = recog_config['SequenceModeling']  # 'BiLSTM',
+                # transformation = recog_config['Transformation']  # 'TPS',
+                # # imgH = recog_config[''] # 32,
+                # imgW = recog_config['imgW'] # 100,
+                # num_fiducial = recog_config['num_fiducial'] # 20,
+                # user_params = {
+                #     'FeatureExtraction': featureExtraction,
+                #     'Prediction': prediction,
+                #     'SequenceModeling': sequenceModeling,
+                #     'Transformation': transformation,
+                #     'imgH': imgH,
+                #     'imgW': imgW,
+                #     'num_fiducial': num_fiducial
+                # }
+            print("recog_network:", recog_network)
             print("network_params:", network_params)
+            print("dict_list:", dict_list)
+            print("model_path:", model_path)
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
-                                                         dict_list, model_path, device = self.device, quantize=quantize)
+                                                         dict_list, model_path, recog_config, device = self.device, quantize=quantize)
 
     def setModelLanguage(self, language, lang_list, list_lang, list_lang_string):
         self.model_lang = language
