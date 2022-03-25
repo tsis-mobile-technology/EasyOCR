@@ -165,7 +165,7 @@ if __name__ == '__main__':
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
         reader = Reader(['ko', 'en'], gpu=False,
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed324',
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1325',
                         # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1324',
                         # model_storage_directory='./model',
                         user_network_directory='./user_network',
