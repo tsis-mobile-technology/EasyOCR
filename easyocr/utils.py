@@ -345,7 +345,7 @@ class CTCLabelConverter(object):
             # print("text:", ''.join(np.array(self.character)[t[c.nonzero()]]))
             text = ''.join(np.array(self.character)[t[c.nonzero()]])
             texts.append(text)
-            print("text:", text)
+            # print("text:", text)
 
             index += l
             # print("(utils.py, index:", index)
@@ -801,3 +801,156 @@ def set_result_with_confidence(results):
         final_result.append(results[best_row][col_ix])
 
     return final_result
+
+
+class AttnLabelConverter(object):
+    """ Convert between text-label and text-index """
+
+    def __init__(self, character, separator_list={}, dict_pathlist = {}):
+        # character (str): set of the possible characters.
+        # [GO] for the start token of the attention decoder. [s] for end-of-sentence token.
+        list_token = ['[GO]', '[s]']  # ['[s]','[UNK]','[PAD]','[GO]']
+        list_character = list(character)
+        self.character = list_token + list_character
+        print("len(self.character):", len(self.character))
+        self.dict = {}
+        for i, char in enumerate(self.character):
+            # print(i, char)
+            self.dict[char] = i
+
+        self.separator_list = separator_list
+        separator_char = []
+        for lang, sep in separator_list.items():
+            separator_char += sep
+        self.ignore_idx = [0] + [i + 1 for i, item in enumerate(separator_char)]
+        print("separator_list:", separator_list)
+
+        ####### latin dict
+        if len(separator_list) == 0:
+            dict_list = []
+            for lang, dict_path in dict_pathlist.items():
+                try:
+                    with open(dict_path, "r", encoding="utf-8-sig") as input_file:
+                        word_count = input_file.read().splitlines()
+                    dict_list += word_count
+                except:
+                    pass
+        else:
+            dict_list = {}
+            for lang, dict_path in dict_pathlist.items():
+                with open(dict_path, "r", encoding="utf-8-sig") as input_file:
+                    word_count = input_file.read().splitlines()
+                dict_list[lang] = word_count
+
+        self.dict_list = dict_list
+
+    def encode(self, text, batch_max_length=25):
+        """ convert text-label into text-index.
+        input:
+            text: text labels of each image. [batch_size]
+            batch_max_length: max length of text label in the batch. 25 by default
+
+        output:
+            text : the input of attention decoder. [batch_size x (max_length+2)] +1 for [GO] token and +1 for [s] token.
+                text[:, 0] is [GO] token and text is padded with [GO] token after [s] token.
+            length : the length of output of attention decoder, which count [s] token also. [3, 7, ....] [batch_size]
+        """
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        length = [len(s) + 1 for s in text]  # +1 for [s] at end of sentence.
+        # batch_max_length = max(length) # this is not allowed for multi-gpu setting
+        batch_max_length += 1
+        # additional +1 for [GO] at first step. batch_text is padded with [GO] token after [s] token.
+        batch_text = torch.LongTensor(len(text), batch_max_length + 1).fill_(0)
+        for i, t in enumerate(text):
+            text = list(t)
+            text.append('[s]')
+            text = [self.dict[char] for char in text]
+            batch_text[i][1:1 + len(text)] = torch.LongTensor(text)  # batch_text[:, 0] = [GO] token
+        return (batch_text.to(device), torch.IntTensor(length).to(device))
+
+    def decode(self, text_index, length):
+        """ convert text-index into text-label. """
+        texts = []
+        for index, l in enumerate(length):
+            text = ''.join([self.character[i] for i in text_index[index, :]])
+            texts.append(text)
+        return texts
+
+    def decode_greedy(self, text_index, length):
+        """ convert text-index into text-label. """
+        texts = []
+
+        if True:
+            index = 0
+            # print("text_index:", text_index)
+            # print("length:", length)
+            for l in length:
+                # print("l:", l)
+                t = text_index[index:index + l]
+                # print("t:", t)
+                # Returns a boolean array where true is when the value is not repeated
+                a = np.insert(~((t[1:]==t[:-1])),0,True)
+                # Returns a boolean array where true is when the value is not in the ignore_idx list
+                b = ~np.isin(t,np.array(self.ignore_idx))
+                # Combine the two boolean array
+                c = a & b
+                # print("c:", c.nonzero())
+                # print("t:", t[c.nonzero()])
+                # print("len(t):", len(t[c.nonzero()]))
+                # Gets the corresponding character according to the saved indexes
+                # print("np.array(self.character):", np.array(self.character))
+                # print("text:", ''.join(np.array(self.character)[t[c.nonzero()]]))
+                text = ''.join(np.array(self.character)[t[c.nonzero()]][:len(t[c.nonzero()]) - 1])
+                texts.append(text)
+                # print("text:", text)
+                # print("1.text:", ''.join(np.array(self.character)[t[c.nonzero()] -1] ))
+                # print("2.text:", ''.join(np.array(self.character)[t[c.nonzero()] -2] ))
+                index += l
+                # print("(utils.py, index:", index)
+        else:
+            for index, l in enumerate(length):
+                text = ''.join([self.character[i] for i in text_index[index, :]])
+                texts.append(text)
+                print("text:", text)
+        return texts
+
+    def decode_beamsearch(self, mat, beamWidth=5):
+        texts = []
+        for i in range(mat.shape[0]):
+            t = ctcBeamSearch(mat[i], self.character, self.ignore_idx, None, beamWidth=beamWidth)
+            texts.append(t)
+        return texts
+
+    def decode_wordbeamsearch(self, mat, beamWidth=5):
+        texts = []
+        argmax = np.argmax(mat, axis = 2)
+
+        for i in range(mat.shape[0]):
+            string = ''
+            # without separators - use space as separator
+            if len(self.separator_list) == 0:
+                space_idx = self.dict[' ']
+
+                data = np.argwhere(argmax[i]!=space_idx).flatten()
+                group = np.split(data, np.where(np.diff(data) != 1)[0]+1)
+                group = [ list(item) for item in group if len(item)>0]
+
+                for j, list_idx in enumerate(group):
+                    matrix = mat[i, list_idx,:]
+                    t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None,\
+                                      beamWidth=beamWidth, dict_list=self.dict_list)
+                    if j == 0: string += t
+                    else: string += ' '+t
+
+            # with separators
+            else:
+                words = word_segmentation(argmax[i])
+
+                for word in words:
+                    matrix = mat[i, word[1][0]:word[1][1]+1,:]
+                    if word[0] == '': dict_list = []
+                    else: dict_list = self.dict_list[word[0]]
+                    t = ctcBeamSearch(matrix, self.character, self.ignore_idx, None, beamWidth=beamWidth, dict_list=dict_list)
+                    string += t
+            texts.append(string)
+        return texts

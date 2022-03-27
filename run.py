@@ -165,8 +165,7 @@ if __name__ == '__main__':
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
         reader = Reader(['en', 'ko'], gpu=False,
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-0315-wild-syllable',
-                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-0316-wild',
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-0316-wild',
                         # model_storage_directory='./model',
                         user_network_directory='./user_network',
                         # recog_network='craft_mlt_25k')
@@ -202,6 +201,8 @@ if __name__ == '__main__':
                 ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
                 img = Image.fromarray(img)
                 draw = ImageDraw.Draw(img)
+                w, h = font.getsize(string)
+                draw.rectangle((int(bbox[0][0]), int(bbox[0][1]) - 5, int(bbox[0][0]) + w, int(bbox[0][1]) - 5 + h), fill='black')
                 draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
                 img = np.array(img)
             cv.imshow(filename, img)

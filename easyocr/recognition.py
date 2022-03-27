@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 import numpy as np
 from collections import OrderedDict
 import importlib
-from .utils import CTCLabelConverter
+from .utils import CTCLabelConverter, AttnLabelConverter
 import math
 
 def custom_mean(x):
@@ -154,8 +154,13 @@ def get_recognizer(recog_network, network_params, character,\
                    separator_list, dict_list, model_path,\
                    recog_config = None,\
                    device = 'cpu', quantize = True):
-
-    converter = CTCLabelConverter(character, separator_list, dict_list)
+    # case : easyocr
+    # converter = CTCLabelConverter(character, separator_list, dict_list)
+    # case : deep-text-recognition-benchmark
+    if 'Attn' in recog_config['Prediction']:
+        converter = AttnLabelConverter(character, separator_list, dict_list)
+    else:
+        converter = CTCLabelConverter(character, separator_list, dict_list)
     num_class = len(converter.character)
 
     if recog_network == 'generation1':
