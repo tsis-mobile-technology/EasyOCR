@@ -164,9 +164,9 @@ if __name__ == '__main__':
         #                 model_storage_directory='model',
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
-        reader = Reader(['ko', 'en'], gpu=False,
-                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-wild-syllable-0317',
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1326',
+        reader = Reader(['en', 'ko'], gpu=False,
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-0315-wild-syllable',
+                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-0316-wild',
                         # model_storage_directory='./model',
                         user_network_directory='./user_network',
                         # recog_network='craft_mlt_25k')
@@ -188,22 +188,22 @@ if __name__ == '__main__':
             # result[0]: bbox
             # result[1]: string
             # result[2]: confidence
+            img = cv.imread(file)
             for (bbox, string, confidence) in result:
                 print("filename: '%s', confidence: %.4f, string: '%s'" % (filename, confidence, string))
                 print('bbox: ', bbox)
-                img = cv.imread(file)
+                # img = cv.imread(file)
                 cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (255, 255, 0), 3)
                 # put_test(img, string, filename)
 
                 # bottomLeftCornerOfText = (10, 500)
                 bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1]) - 5)
-                font = ImageFont.truetype("fonts/gulim.ttc", 10)
+                font = ImageFont.truetype("fonts/gulim.ttc", 15)
                 ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
                 img = Image.fromarray(img)
                 draw = ImageDraw.Draw(img)
                 draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
                 img = np.array(img)
-
-                cv.imshow(filename, img)
-                cv.waitKey(0)
+            cv.imshow(filename, img)
+            cv.waitKey(0)
             cv.destroyAllWindows()

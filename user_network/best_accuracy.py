@@ -97,7 +97,11 @@ class Model(nn.Module):
         else:
             raise Exception('Prediction is neither CTC or Attn')
 
-    def forward(self, input, text, is_train=True):
+    # deep-text-recognition-benchmark에서는 is_train이 False임
+    # 또한 아래처럼 is_train=True로 하면 에러가 남
+    #   에러 : indexerror: index 58 is out of bounds for dimension 1 with size 58
+    # def forward(self, input, text, is_train=True):
+    def forward(self, input, text, is_train=False):
         """ Transformation stage """
         if not self.stages['Trans'] == "None":
             input = self.Transformation(input)

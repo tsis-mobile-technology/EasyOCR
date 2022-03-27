@@ -177,7 +177,7 @@ def get_recognizer(recog_network, network_params, character,\
             'batch_max_length': recog_config['batch_max_length'],
             'hidden_size': network_params['hidden_size'],
             'input_channel': network_params['input_channel'],
-            'num_class': network_params['num_class'],
+            'num_class': num_class, # network_params['num_class'],
             'output_channel': network_params['output_channel']
         }
         print("user_params   :", opt)

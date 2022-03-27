@@ -33,10 +33,12 @@ class Attention(nn.Module):
         output_hiddens = torch.FloatTensor(batch_size, num_steps, self.hidden_size).fill_(0).to(device)
         hidden = (torch.FloatTensor(batch_size, self.hidden_size).fill_(0).to(device),
                   torch.FloatTensor(batch_size, self.hidden_size).fill_(0).to(device))
-
+        # print("num_steps:", num_steps)
+        # print("batch_max_length:", batch_max_length)
         if is_train:
             for i in range(num_steps):
                 # one-hot vectors for a i-th char. in a batch
+                # print("text[:, i],:", i, ",", text[:, i])
                 char_onehots = self._char_to_onehot(text[:, i], onehot_dim=self.num_classes)
                 # hidden : decoder's hidden s_{t-1}, batch_H : encoder's hidden H, char_onehots : one-hot(y_{t-1})
                 hidden, alpha = self.attention_cell(hidden, batch_H, char_onehots)
