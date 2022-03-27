@@ -165,8 +165,8 @@ if __name__ == '__main__':
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
         reader = Reader(['ko', 'en'], gpu=False,
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1325',
-                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1324',
+                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-wild-syllable-0317',
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1326',
                         # model_storage_directory='./model',
                         user_network_directory='./user_network',
                         # recog_network='craft_mlt_25k')
@@ -192,11 +192,12 @@ if __name__ == '__main__':
                 print("filename: '%s', confidence: %.4f, string: '%s'" % (filename, confidence, string))
                 print('bbox: ', bbox)
                 img = cv.imread(file)
-                cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (0, 0, 255), 3)
+                cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (255, 255, 0), 3)
                 # put_test(img, string, filename)
 
-                bottomLeftCornerOfText = (10, 500)
-                font = ImageFont.truetype("fonts/gulim.ttc", 50)
+                # bottomLeftCornerOfText = (10, 500)
+                bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1]) - 5)
+                font = ImageFont.truetype("fonts/gulim.ttc", 10)
                 ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
                 img = Image.fromarray(img)
                 draw = ImageDraw.Draw(img)

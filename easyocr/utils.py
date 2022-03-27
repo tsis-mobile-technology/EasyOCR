@@ -328,12 +328,12 @@ class CTCLabelConverter(object):
         """ convert text-index into text-label. """
         texts = []
         index = 0
-        print("text_index:", text_index)
-        print("length:", length)
+        # print("text_index:", text_index)
+        # print("length:", length)
         for l in length:
-            print("l:", l)
+            # print("l:", l)
             t = text_index[index:index + l]
-            print("t:", t)
+            # print("t:", t)
             # Returns a boolean array where true is when the value is not repeated
             a = np.insert(~((t[1:]==t[:-1])),0,True)
             # Returns a boolean array where true is when the value is not in the ignore_idx list
@@ -341,14 +341,14 @@ class CTCLabelConverter(object):
             # Combine the two boolean array
             c = a & b
             # Gets the corresponding character according to the saved indexes
-            print("np.array(self.character):", np.array(self.character))
-            print("text:", ''.join(np.array(self.character)[t[c.nonzero()]]))
+            # print("np.array(self.character):", np.array(self.character))
+            # print("text:", ''.join(np.array(self.character)[t[c.nonzero()]]))
             text = ''.join(np.array(self.character)[t[c.nonzero()]])
             texts.append(text)
             print("text:", text)
 
             index += l
-            print("index:", index)
+            # print("(utils.py, index:", index)
 
         return texts
 

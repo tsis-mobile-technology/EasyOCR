@@ -174,13 +174,14 @@ def get_recognizer(recog_network, network_params, character,\
             'imgH': recog_config['imgH'],
             'imgW': recog_config['imgW'],
             'num_fiducial': recog_config['num_fiducial'],
+            'batch_max_length': recog_config['batch_max_length'],
             'hidden_size': network_params['hidden_size'],
             'input_channel': network_params['input_channel'],
             'num_class': network_params['num_class'],
             'output_channel': network_params['output_channel']
         }
-        print("user_params:", opt)
-        model = model_pkg.Model( opt )
+        print("user_params   :", opt)
+        model = model_pkg.Model(opt)
     else:
         model = model_pkg.Model(num_class=num_class, **network_params)
 

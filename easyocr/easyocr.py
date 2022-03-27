@@ -347,11 +347,11 @@ class Reader(object):
             y_max, x_max = img_cv_grey.shape
             horizontal_list = [[0, x_max, 0, y_max]]
             free_list = []
-        print("recognize:", 324, ",", datetime.now())
+        # print("recognize:", 324, ",", datetime.now())
         # without gpu/parallelization, it is faster to process image one by one
         if ((batch_size == 1) or (self.device == 'cpu')) and not rotation_info:
             result = []
-            print("recognize:", 328, ",", datetime.now())
+            # print("recognize:", 328, ",", datetime.now())
             for bbox in horizontal_list:
                 h_list = [bbox]
                 f_list = []
@@ -360,7 +360,7 @@ class Reader(object):
                               ignore_char, decoder, beamWidth, batch_size, contrast_ths, adjust_contrast, filter_ths,\
                               workers, self.device)
                 result += result0
-            print("recognize:", 337, ",", datetime.now())
+            # print("recognize:", 337, ",", datetime.now())
             for bbox in free_list:
                 h_list = []
                 f_list = [bbox]
@@ -376,7 +376,7 @@ class Reader(object):
             if rotation_info and image_list:
                 image_list = make_rotated_img_list(rotation_info, image_list)
                 max_width = max(max_width, imgH)
-            print("recognize:", 353, ",", datetime.now())
+            # print("recognize:", 353, ",", datetime.now())
             result = get_text(self.character, imgH, int(max_width), self.recognizer, self.converter, image_list,\
                           ignore_char, decoder, beamWidth, batch_size, contrast_ths, adjust_contrast, filter_ths,\
                           workers, self.device)
@@ -418,7 +418,7 @@ class Reader(object):
         image: file path or numpy-array or a byte stream object
         '''
         img, img_cv_grey = reformat_input(image)
-        print("easyocr:", 392, ",", datetime.now())
+        # print("easyocr:", 392, ",", datetime.now())
 
         horizontal_list, free_list = self.detect(img, min_size, text_threshold,\
                                                  low_text, link_threshold,\
@@ -426,7 +426,7 @@ class Reader(object):
                                                  slope_ths, ycenter_ths,\
                                                  height_ths,width_ths,\
                                                  add_margin, False)
-        print("easyocr:", 400, ",", datetime.now())
+        # print("easyocr:", 400, ",", datetime.now())
         # get the 1st result from hor & free list as self.detect returns a list of depth 3
         horizontal_list, free_list = horizontal_list[0], free_list[0]
         result = self.recognize(img_cv_grey, horizontal_list, free_list,\
@@ -434,7 +434,7 @@ class Reader(object):
                                 workers, allowlist, blocklist, detail, rotation_info,\
                                 paragraph, contrast_ths, adjust_contrast,\
                                 filter_ths, y_ths, x_ths, False, output_format)
-        print("easyocr:", 408, ",", datetime.now())
+        # print("easyocr:", 408, ",", datetime.now())
         return result
     
     def readtextlang(self, image, decoder = 'greedy', beamWidth= 5, batch_size = 1,\

@@ -27,7 +27,6 @@ from modules.prediction import Attention
 
 
 class Model(nn.Module):
-
     def __init__(self, opt):
         super(Model, self).__init__()
         # Modify User Code, EasyOCR + deep_text_recognition_benchmark
@@ -55,6 +54,8 @@ class Model(nn.Module):
         # self.opt.imgW = imgW
         # self.opt.num_fiducial = num_fiducial
         self.opt = opt
+        print("opt.FeatureExtraction:", self.opt['FeatureExtraction'])
+        print("opt.batch_max_length:", self.opt['batch_max_length'])
         # opt = self.opt
         self.stages = {'Trans': opt['Transformation'], 'Feat': opt['FeatureExtraction'],
                        'Seq': opt['SequenceModeling'], 'Pred': opt['Prediction']}
@@ -116,6 +117,7 @@ class Model(nn.Module):
         if self.stages['Pred'] == 'CTC':
             prediction = self.Prediction(contextual_feature.contiguous())
         else:
-            prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.opt.batch_max_length)
+            # print(self.opt['batch_max_length'])
+            prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.opt['batch_max_length'])
 
         return prediction
