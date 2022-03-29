@@ -165,8 +165,9 @@ if __name__ == '__main__':
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
         reader = Reader(['en', 'ko'], gpu=False,
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-0316-wild',
+                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-Seed328',
                         # model_storage_directory='./model',
+                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1330',
                         user_network_directory='./user_network',
                         # recog_network='craft_mlt_25k')
                         # # recog_network='TPS-ResNet-BiLSTM-CTC-0311-wild')
@@ -189,8 +190,8 @@ if __name__ == '__main__':
             # result[2]: confidence
             img = cv.imread(file)
             for (bbox, string, confidence) in result:
-                print("filename: '%s', confidence: %.4f, string: '%s'" % (filename, confidence, string))
-                print('bbox: ', bbox)
+                print("filename: '%s', confidence: %.4f, string: '%s', bbox: '%s'" % (filename, confidence, string, bbox))
+                # print('bbox: ', bbox)
                 # img = cv.imread(file)
                 cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (255, 255, 0), 3)
                 # put_test(img, string, filename)

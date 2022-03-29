@@ -900,7 +900,9 @@ class AttnLabelConverter(object):
                 # Gets the corresponding character according to the saved indexes
                 # print("np.array(self.character):", np.array(self.character))
                 # print("text:", ''.join(np.array(self.character)[t[c.nonzero()]]))
-                text = ''.join(np.array(self.character)[t[c.nonzero()]][:len(t[c.nonzero()]) - 1])
+                text = ''.join(np.array(self.character)[t[c.nonzero()]][:len(t[c.nonzero()])])
+                pred_EOS = text.find('[s]')
+                text = text[:pred_EOS]  # prune after "end of sentence" token ([s])
                 texts.append(text)
                 # print("text:", text)
                 # print("1.text:", ''.join(np.array(self.character)[t[c.nonzero()] -1] ))
