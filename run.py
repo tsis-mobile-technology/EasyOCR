@@ -164,48 +164,67 @@ if __name__ == '__main__':
         #                 model_storage_directory='model',
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
-        reader = Reader(['en', 'ko'], gpu=False,
-                        # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-Seed328',
-                        # model_storage_directory='./model',
-                        model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-CTC-Seed1330',
-                        user_network_directory='./user_network',
-                        # recog_network='craft_mlt_25k')
-                        # # recog_network='TPS-ResNet-BiLSTM-CTC-0311-wild')
-                        # recog_network='TPS-ResNet-BiLSTM-Attn-0316-wild')
-                        # # recog_network='TPS-ResNet-BiLSTM-Attn-wild-syllable-0317')
-                        # recog_network='TPS-ResNet-BiLSTM-CTC-syllable-word-wild-0316')
-                        recog_network='best_accuracy')
+        # try:
+            reader = Reader(['en', 'ko'], gpu=False)
+                            # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-Seed328',
+                            # model_storage_directory='./model',
+                            # model_storage_directory='../trainning_model',
+                            # user_network_directory='./user_network',
+                            # recog_network='best_accuracy')
 
-        # files, count = get_files('../aihub_data/Text_in_the_wild/data/Goods/test')  #orig 'examples'
-        files, count = get_files('examples')  # orig
+            files, count = get_files('../TextRecognitionDataGenerator/out')  #orig 'examples'
+            # files, count = get_files('examples')  # orig
+            # files, count = get_files('demo_image')
 
-        for idx, file in enumerate(files):
-            filename = os.path.basename(file)
-            print("file:", file )
-            result = reader.readtext(file)
+            n_sucess = 0
+            n_fail = 0
+            for idx, file in enumerate(files):
+                filename = os.path.basename(file)
+                # print("file:", file )
+                result = reader.readtext(file)
+                time.sleep(0.2)
+                # ./easyocr/utils.py 733 lines
+                # result[0]: bbox
+                # result[1]: string
+                # result[2]: confidence
+                # print(result)
+                if result:
+                    for (bbox, string, confidence) in result:
+                        if filename.split('_')[0] == string:
+                            print("[TRUE]idx: %d, filename: '%s', string: '%s', confidence: %.4f" % (idx, filename, string, confidence))
+                            n_sucess += 1
+                        else:
+                            print("\t\t\t\t\t\t\t\t\t\t\t\t\t\t[FALSE]idx: %d, filename: '%s', string: '%s'" % (idx, filename, string))
+                            n_fail += 1
+                    print("Success Count:%d, Failure Count:%d" % (n_sucess, n_fail))
+            print("Success Count:%d, Failure Count:%d" % (n_sucess, n_fail))
 
-            # ./easyocr/utils.py 733 lines
-            # result[0]: bbox
-            # result[1]: string
-            # result[2]: confidence
-            img = cv.imread(file)
-            for (bbox, string, confidence) in result:
-                print("filename: '%s', confidence: %.4f, string: '%s', bbox: '%s'" % (filename, confidence, string, bbox))
-                # print('bbox: ', bbox)
-                # img = cv.imread(file)
-                cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (255, 255, 0), 3)
-                # put_test(img, string, filename)
-
-                # bottomLeftCornerOfText = (10, 500)
-                bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1]) - 5)
-                font = ImageFont.truetype("fonts/gulim.ttc", 15)
-                ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
-                img = Image.fromarray(img)
-                draw = ImageDraw.Draw(img)
-                w, h = font.getsize(string)
-                draw.rectangle((int(bbox[0][0]), int(bbox[0][1]) - 5, int(bbox[0][0]) + w, int(bbox[0][1]) - 5 + h), fill='black')
-                draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
-                img = np.array(img)
-            cv.imshow(filename, img)
-            cv.waitKey(0)
-            cv.destroyAllWindows()
+            """
+                img = cv.imread(file)
+    
+                for (bbox, string, confidence) in result:
+                    if filename.split('_')[0] == string:
+                        print("idx: %d, filename: '%s', confidence: %.4f, string: '%s', bbox: '%s'" % (idx, filename, confidence, string, bbox))
+                    else:
+                        print("idx: %d", idx)
+                    # print('bbox: ', bbox)
+                    # img = cv.imread(file)
+                    cv.rectangle(img, (int(bbox[0][0]), int(bbox[0][1])), (int(bbox[2][0]), int(bbox[2][1])), (255, 255, 0), 3)
+                    # put_test(img, string, filename)
+    
+                    # bottomLeftCornerOfText = (10, 500)
+                    bottomLeftCornerOfText = (int(bbox[0][0]), int(bbox[0][1]) - 5)
+                    font = ImageFont.truetype("fonts/gulim.ttc", 15)
+                    ##text_img = np.full((200,300,3), (0, 0, 255), np.unit8)
+                    img = Image.fromarray(img)
+                    draw = ImageDraw.Draw(img)
+                    w, h = font.getsize(string)
+                    draw.rectangle((int(bbox[0][0]), int(bbox[0][1]) - 5, int(bbox[0][0]) + w, int(bbox[0][1]) - 5 + h), fill='black')
+                    draw.text(bottomLeftCornerOfText, string, font=font, fill=(0, 0, 255))
+                    img = np.array(img)
+                cv.imshow(filename, img)
+                cv.waitKey(0)
+                cv.destroyAllWindows()
+            """
+        # except Exception as e:  # 모든 예외의 에러 메시지를 출력할 때는 Exception을 사용
+        #     print('예외가 발생했습니다.', e)

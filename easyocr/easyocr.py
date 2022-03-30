@@ -109,7 +109,7 @@ class Reader(object):
 
         # recognition model
         separator_list = {}
-        print("recog_network:", recog_network)
+        # print("recog_network:", recog_network)
         if recog_network in ['standard'] + [model for model in recognition_models['gen1']] + [model for model in recognition_models['gen2']]:
             if recog_network in [model for model in recognition_models['gen1']]:
                 model = recognition_models['gen1'][recog_network]
@@ -259,13 +259,13 @@ class Reader(object):
                 #     'imgW': imgW,
                 #     'num_fiducial': num_fiducial
                 # }
-            print("recog_network:", recog_network)
-            print("network_params:", network_params)
-            print("dict_list:", dict_list)
-            print("model_path:", model_path)
+            # print("recog_network:", recog_network)
+            # print("network_params:", network_params)
+            # print("dict_list:", dict_list)
+            # print("model_path:", model_path)
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
-                                                         dict_list, model_path, recog_config, device = self.device, quantize=quantize)
+                                                         dict_list, model_path, recog_config = None, device = self.device, quantize=quantize)
 
     def setModelLanguage(self, language, lang_list, list_lang, list_lang_string):
         self.model_lang = language
