@@ -265,7 +265,7 @@ class Reader(object):
             # print("model_path:", model_path)
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
-                                                         dict_list, model_path, recog_config = None, device = self.device, quantize=quantize)
+                                                         dict_list, model_path, recog_config, device = self.device, quantize=quantize)
 
     def setModelLanguage(self, language, lang_list, list_lang, list_lang_string):
         self.model_lang = language

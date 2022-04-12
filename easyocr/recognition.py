@@ -157,10 +157,12 @@ def get_recognizer(recog_network, network_params, character,\
     # case : easyocr
     # converter = CTCLabelConverter(character, separator_list, dict_list)
     # case : deep-text-recognition-benchmark
+
     if recog_config:
         if  'Attn' in recog_config['Prediction']:
             converter = AttnLabelConverter(character, separator_list, dict_list)
         else:
+            print("recog_config:", recog_config)
             converter = CTCLabelConverter(character, separator_list, dict_list)
     else:
         converter = CTCLabelConverter(character, separator_list, dict_list)

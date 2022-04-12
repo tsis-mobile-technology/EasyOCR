@@ -165,23 +165,23 @@ if __name__ == '__main__':
         #                 user_network_directory='user_network',
         #                 recog_network='custom_ko')
         # try:
-            reader = Reader(['en', 'ko'], gpu=False)
-                            # model_storage_directory='../trainning_model/TPS-ResNet-BiLSTM-Attn-Seed328',
+            reader = Reader(['ko'], gpu=False,
+                            model_storage_directory='../trainning_model/None-VGG-BiLSTM-CTC-Seed334',
                             # model_storage_directory='./model',
                             # model_storage_directory='../trainning_model',
-                            # user_network_directory='./user_network',
-                            # recog_network='best_accuracy')
+                            user_network_directory='./user_network',
+                            recog_network='best_accuracy')
 
-            files, count = get_files('../TextRecognitionDataGenerator/out')  #orig 'examples'
+            # files, count = get_files('../TextRecognitionDataGenerator/out')  #orig 'examples'
             # files, count = get_files('examples')  # orig
-            # files, count = get_files('demo_image')
+            files, count = get_files('demo_image')
 
             n_sucess = 0
             n_fail = 0
             for idx, file in enumerate(files):
                 filename = os.path.basename(file)
                 # print("file:", file )
-                result = reader.readtext(file)
+                result = reader.readtext(file, min_size=10)
                 time.sleep(0.2)
                 # ./easyocr/utils.py 733 lines
                 # result[0]: bbox
